@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quotation <%= quotation.quotationNumber %></title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: #1f2937;
+      background: #ffffff;
+      padding: 30px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #2563eb;
+      padding-bottom: 20px;
+      margin-bottom: 25px;
+    }
+    .company-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #1e3a8a;
+      letter-spacing: -0.5px;
+    }
+    .company-info {
+      color: #4b5563;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    .quotation-badge {
+      text-align: right;
+    }
+    .quotation-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: #2563eb;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .meta-item {
+      font-size: 13px;
+      color: #374151;
+      margin-top: 3px;
+    }
+    .meta-item strong {
+      color: #111827;
+    }
+    .parties-grid {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      margin-bottom: 25px;
+    }
+    .party-card {
+      flex: 1;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .party-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .party-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .party-details {
+      margin-top: 4px;
+      color: #4b5563;
+      font-size: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 25px;
+    }
+    th {
+      background: #f3f4f6;
+      color: #374151;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 10px 12px;
+      border-bottom: 2px solid #e5e7eb;
+      text-align: left;
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f3f4f6;
+      vertical-align: middle;
+      font-size: 12px;
+    }
+    .item-img {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 2px;
+      display: block;
+    }
+    .item-name {
+      font-weight: 600;
+      color: #111827;
+    }
+    .item-desc {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+    .item-sku {
+      font-family: monospace;
+      font-size: 11px;
+      color: #4b5563;
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .text-right {
+      text-align: right;
+    }
+    .text-center {
+      text-align: center;
+    }
+    .totals-wrapper {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 30px;
+    }
+    .totals-table {
+      width: 280px;
+      border-collapse: collapse;
+    }
+    .totals-table td {
+      padding: 6px 12px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .totals-table .grand-total {
+      font-size: 16px;
+      font-weight: 800;
+      color: #1e3a8a;
+      background: #eff6ff;
+      border-top: 2px solid #2563eb;
+      border-bottom: 2px solid #2563eb;
+    }
+    .terms-section {
+      background: #fafafa;
+      border-left: 3px solid #2563eb;
+      padding: 14px 18px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 30px;
+    }
+    .terms-title {
+      font-weight: 700;
+      font-size: 12px;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+    .terms-text {
+      color: #4b5563;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .signatures {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 50px;
+      padding-top: 20px;
+    }
+    .sig-box {
+      width: 200px;
+      text-align: center;
+      border-top: 1px solid #9ca3af;
+      padding-top: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #4b5563;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div style="display: flex; align-items: center; gap: 18px;">
+      <% if (company && company.logo) { %>
+        <img src="<%= company.logo %>" alt="Company Logo" style="max-height: 56px; max-width: 170px; object-fit: contain; border-radius: 6px;" />
+      <% } %>
+      <div>
+        <div class="company-title"><%= (company && company.name) || 'SaaS Quotation' %></div>
+        <div class="company-info">
+          <% if (company && company.address) { %><div><%= company.address %></div><% } %>
+          <% if (company && company.email) { %><div>Email: <%= company.email %></div><% } %>
+          <% const gstin = (company && company.settings && company.settings.gstNumber) || (company && company.gstNumber); %>
+          <% if (gstin) { %><div>GSTIN: <%= gstin %></div><% } %>
+        </div>
+      </div>
+    </div>
+    <div class="quotation-badge">
+      <div class="quotation-title">Quotation</div>
+      <div class="meta-item"><strong># <%= quotation.quotationNumber %></strong></div>
+      <% if (quotation.revision && quotation.revision > 0) { %>
+        <div class="meta-item">
+          <span style="display: inline-block; background: #eff6ff; color: #2563eb; font-weight: 800; font-size: 11px; padding: 2px 8px; border-radius: 4px; border: 1px solid #bfdbfe; margin-top: 2px;">
+            REVISION <%= quotation.revision %>
+          </span>
+        </div>
+      <% } %>
+      <div class="meta-item">Date: <%= new Date(quotation.createdAt || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) %></div>
+      <div class="meta-item">Status: <strong style="text-transform: capitalize;"><%= quotation.status || 'Draft' %></strong></div>
+    </div>
+  </div>
+
+  <!-- Parties -->
+  <div class="parties-grid">
+    <div class="party-card">
+      <div class="party-title">Quotation For (Client)</div>
+      <div class="party-name">
+        <%= (quotation.customerSnapshot && quotation.customerSnapshot.companyName) || (quotation.customerSnapshot && quotation.customerSnapshot.name) || 'Valued Customer' %>
+      </div>
+      <div class="party-details">
+        <% if (quotation.customerSnapshot && quotation.customerSnapshot.name && quotation.customerSnapshot.companyName) { %>
+          <div>Attn: <%= quotation.customerSnapshot.name %></div>
+        <% } %>
+        <% if (quotation.customerSnapshot && quotation.customerSnapshot.phone) { %>
+          <div>Phone: <%= quotation.customerSnapshot.phone %></div>
+        <% } %>
+        <% if (quotation.customerSnapshot && quotation.customerSnapshot.email) { %>
+          <div>Email: <%= quotation.customerSnapshot.email %></div>
+        <% } %>
+        <% if (quotation.customerSnapshot && quotation.customerSnapshot.address) { %>
+          <div><%= quotation.customerSnapshot.address %></div>
+        <% } %>
+        <% if (quotation.customerSnapshot && quotation.customerSnapshot.gstNumber) { %>
+          <div>GST: <%= quotation.customerSnapshot.gstNumber %></div>
+        <% } %>
+      </div>
+    </div>
+    <div class="party-card">
+      <div class="party-title">Payment & Validity</div>
+      <div class="party-details" style="font-size: 13px;">
+        <div><strong>Currency:</strong> USD ($)</div>
+        <div><strong>Valid Until:</strong> 30 Days from issue</div>
+        <% if (quotation.createdBy && quotation.createdBy.name) { %>
+          <div><strong>Prepared By:</strong> <%= quotation.createdBy.name %></div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Line Items Table -->
+  <table>
+    <thead>
+      <tr>
+        <th class="text-center" style="width: 50px;">Img</th>
+        <th>Product Description</th>
+        <th style="width: 130px;">SKU</th>
+        <th class="text-center" style="width: 60px;">Qty</th>
+        <th class="text-right" style="width: 90px;">Price</th>
+        <th class="text-right" style="width: 70px;">Tax</th>
+        <th class="text-right" style="width: 100px;">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% quotation.items.forEach(function(item) { %>
+        <tr>
+          <td class="text-center">
+            <% if (item.image) { %>
+              <img src="<%= item.image %>" class="item-img" alt="item" />
+            <% } else { %>
+              <div class="item-img" style="display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:9px;">No img</div>
+            <% } %>
+          </td>
+          <td>
+            <div class="item-name"><%= item.name %></div>
+            <% if (item.description && item.description !== item.name) { %>
+              <div class="item-desc"><%= item.description %></div>
+            <% } %>
+          </td>
+          <td><span class="item-sku"><%= item.sku %></span></td>
+          <td class="text-center"><strong><%= item.quantity %></strong> <%= item.unit || 'pcs' %></td>
+          <td class="text-right">$<%= (item.unitPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+          <td class="text-right">$<%= (item.tax || 0).toFixed(2) %></td>
+          <td class="text-right"><strong>$<%= (item.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></strong></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+
+  <!-- Totals Section -->
+  <div class="totals-wrapper">
+    <table class="totals-table">
+      <tr>
+        <td class="text-right">Subtotal:</td>
+        <td class="text-right font-bold">$<%= (quotation.subtotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+      </tr>
+      <% if (quotation.tax > 0) { %>
+        <tr>
+          <td class="text-right">Total Tax:</td>
+          <td class="text-right font-bold">$<%= (quotation.tax || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+        </tr>
+      <% } %>
+      <% if (quotation.discount > 0) { %>
+        <tr>
+          <td class="text-right">Discount:</td>
+          <td class="text-right font-bold">-$<%= (quotation.discount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+        </tr>
+      <% } %>
+      <tr class="grand-total">
+        <td class="text-right">Grand Total:</td>
+        <td class="text-right font-bold">$<%= (quotation.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Notes & Terms -->
+  <% if (quotation.notes || quotation.terms) { %>
+    <div class="terms-section">
+      <% if (quotation.notes) { %>
+        <div class="terms-title">Notes</div>
+        <div class="terms-text" style="margin-bottom: 8px;"><%= quotation.notes %></div>
+      <% } %>
+      <% if (quotation.terms) { %>
+        <div class="terms-title">Terms & Conditions</div>
+        <div class="terms-text"><%= quotation.terms %></div>
+      <% } %>
+    </div>
+  <% } %>
+
+  <!-- Signatures -->
+  <div class="signatures">
+    <div class="sig-box">Client Acceptance</div>
+    <div class="sig-box">Authorized Signatory</div>
+  </div>
+
+</body>
+</html>

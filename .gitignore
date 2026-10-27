@@ -1,0 +1,93 @@
+# =============================================================
+# Dependencies
+# =============================================================
+node_modules/
+client/node_modules/
+server/node_modules/
+.pnp
+.pnp.js
+
+# =============================================================
+# Production Build & Bundler Outputs
+# =============================================================
+dist/
+build/
+client/dist/
+server/dist/
+.cache/
+.parcel-cache/
+
+# =============================================================
+# Environment Secrets & Credentials (CRITICAL FOR DEPLOYMENT)
+# =============================================================
+.env
+.env.*
+!.env.example
+client/.env
+client/.env.*
+server/.env
+server/.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+
+# =============================================================
+# Sensitive Data, Quotation Spreadsheets & Data Dumps
+# =============================================================
+*.xlsx
+*.xls
+*.csv
+
+# =============================================================
+# Presentation Decks & Interview Artifacts
+# =============================================================
+*.pptx
+*.ppt
+*.key
+interview_presentation*.html
+
+# =============================================================
+# Local Ingestion / Utility Python Scripts & Python Cache
+# =============================================================
+extract_*.py
+__pycache__/
+*.py[cod]
+*.class
+venv/
+.venv/
+env/
+
+# =============================================================
+# Local Root Assets & Temp Uploads
+# (Production assets reside in client/public/assets)
+# =============================================================
+/assets/
+server/uploads/
+uploads/
+temp/
+tmp/
+
+# =============================================================
+# Logs & Diagnostic Reports
+# =============================================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =============================================================
+# OS & IDE Cache
+# =============================================================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

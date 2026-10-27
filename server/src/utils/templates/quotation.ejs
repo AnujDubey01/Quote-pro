@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quotation <%= quotation.quotationNumber %></title>
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 40px; }
+        .company-details h1 { margin: 0; font-size: 24px; color: #1a56db; }
+        .company-details p, .customer-details p { margin: 2px 0; font-size: 14px; }
+        .customer-details { margin-top: 20px; }
+        .quotation-title { font-size: 32px; font-weight: bold; text-align: right; text-transform: uppercase; color: #6b7280; }
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        th, td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; font-size: 14px; }
+        th { background-color: #f9fafb; font-weight: 600; }
+        .totals { width: 50%; float: right; margin-top: 20px; }
+        .totals table { border: none; }
+        .totals th, .totals td { border: none; padding: 8px; text-align: right; }
+        .totals th { width: 60%; }
+        .grand-total { font-weight: bold; font-size: 18px; color: #111827; border-top: 2px solid #e5e7eb !important; }
+        .footer { clear: both; margin-top: 60px; font-size: 12px; color: #6b7280; }
+        .notes, .terms { margin-top: 20px; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="company-details">
+            <% if (company.logo) { %>
+                <img src="<%= company.logo %>" alt="Company Logo" style="max-height: 80px; margin-bottom: 10px;" />
+            <% } %>
+            <h1><%= company.name %></h1>
+            <p><%= company.address %></p>
+            <p><%= company.email %> | <%= company.phone %></p>
+        </div>
+        <div>
+            <div class="quotation-title">Quotation</div>
+            <p style="text-align: right; font-size: 14px; margin-top: 10px;">
+                <strong>Date:</strong> <%= new Date(quotation.createdAt).toLocaleDateString() %><br>
+                <strong>Quote #:</strong> <%= quotation.quotationNumber %>
+            </p>
+        </div>
+    </div>
+
+    <div class="customer-details">
+        <h3 style="margin-bottom: 5px; color: #374151;">Bill To:</h3>
+        <p><strong><%= quotation.customerSnapshot.companyName || quotation.customerSnapshot.name %></strong></p>
+        <p><%= quotation.customerSnapshot.address %></p>
+        <p><%= quotation.customerSnapshot.email %> | <%= quotation.customerSnapshot.phone %></p>
+        <% if (quotation.customerSnapshot.gstNumber) { %>
+            <p>GSTIN: <%= quotation.customerSnapshot.gstNumber %></p>
+        <% } %>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Tax</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% quotation.items.forEach(function(item) { %>
+                <tr>
+                    <td><%= item.name %></td>
+                    <td><%= item.description || '-' %></td>
+                    <td><%= item.quantity %> <%= item.unit %></td>
+                    <td>$<%= item.unitPrice.toFixed(2) %></td>
+                    <td>$<%= item.tax.toFixed(2) %></td>
+                    <td>$<%= item.total.toFixed(2) %></td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <table>
+            <tr>
+                <th>Subtotal:</th>
+                <td>$<%= quotation.subtotal.toFixed(2) %></td>
+            </tr>
+            <tr>
+                <th>Discount:</th>
+                <td>-$<%= quotation.discount.toFixed(2) %></td>
+            </tr>
+            <tr>
+                <th>Tax:</th>
+                <td>$<%= quotation.tax.toFixed(2) %></td>
+            </tr>
+            <tr>
+                <th class="grand-total">Total:</th>
+                <td class="grand-total">$<%= quotation.total.toFixed(2) %></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        <% if (quotation.notes) { %>
+            <div class="notes">
+                <strong>Notes:</strong><br>
+                <%= quotation.notes %>
+            </div>
+        <% } %>
+        <% if (quotation.terms) { %>
+            <div class="terms">
+                <strong>Terms & Conditions:</strong><br>
+                <%= quotation.terms %>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>

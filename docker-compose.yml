@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: quotepro-backend
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+    ports:
+      - "5000:5000"
+    networks:
+      - quotepro-network
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: quotepro-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - quotepro-network
+
+networks:
+  quotepro-network:
+    driver: bridge
