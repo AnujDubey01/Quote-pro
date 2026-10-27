@@ -9,6 +9,11 @@ import App from './App.jsx'
 // Enable credentials for cross-origin / proxy cookie sharing
 axios.defaults.withCredentials = true;
 
+// Configure production backend API Base URL from environment variables
+if (import.meta.env.VITE_API_URL) {
+  axios.defaults.baseURL = import.meta.env.VITE_API_URL.replace(/\/+$/, '');
+}
+
 // Immediately pre-populate default Authorization header from localStorage on app boot
 const initialToken = localStorage.getItem('token');
 if (initialToken) {
