@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import DashboardLayout from './layouts/DashboardLayout';
 import OwnerDashboard from './pages/OwnerDashboard';
@@ -33,19 +34,30 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Entry Point: Public Landing Page */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* Authentication */}
         <Route path="/login" element={<Login />} />
 
+        {/* Dynamic authenticated dashboard redirect */}
         <Route
-          path="/"
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <IndexRedirect />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Authenticated Dashboard Routes */}
+        <Route
           element={
             <PrivateRoute>
               <DashboardLayout />
             </PrivateRoute>
           }
         >
-          {/* Index auto-redirects each user strictly to their role dashboard */}
-          <Route index element={<IndexRedirect />} />
-
           {/* Dedicated Role-Based Endpoints */}
           <Route
             path="platform"
@@ -138,3 +150,4 @@ function App() {
 }
 
 export default App;
+
