@@ -24,10 +24,12 @@ import {
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Modal from '../components/ui/Modal';
+import { useToast } from '../context/ToastContext';
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+  const { showToast } = useToast();
 
   const [loading, setLoading] = useState(true);
   const [pendingQuotes, setPendingQuotes] = useState([]);
@@ -84,9 +86,10 @@ const ManagerDashboard = () => {
         if (selectedQuotation && selectedQuotation._id === id) {
           setSelectedQuotation(prev => ({ ...prev, status: 'approved', approvedBy: user }));
         }
+        showToast({ type: 'success', message: '✓ Quotation approved successfully!' });
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to approve quotation');
+      showToast({ type: 'error', message: err.response?.data?.message || 'Failed to approve quotation' });
     }
   };
 
@@ -101,9 +104,10 @@ const ManagerDashboard = () => {
         if (selectedQuotation && selectedQuotation._id === id) {
           setSelectedQuotation(prev => ({ ...prev, status: 'rejected' }));
         }
+        showToast({ type: 'warning', message: 'Quotation rejected and returned with feedback.' });
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to reject quotation');
+      showToast({ type: 'error', message: err.response?.data?.message || 'Failed to reject quotation' });
     }
   };
 
@@ -122,8 +126,9 @@ const ManagerDashboard = () => {
       link.click();
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
+      showToast({ type: 'success', message: `✓ Quotation #${quotationNumber || quotationId} PDF downloaded!` });
     } catch (err) {
-      alert('Failed to download PDF');
+      showToast({ type: 'error', message: 'Failed to download PDF. Please try again.' });
     } finally {
       setDownloadingId(null);
     }
@@ -168,6 +173,15 @@ const ManagerDashboard = () => {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
+          <Button
+            variant="outline"
+            size="md"
+            icon={FileSpreadsheet}
+            onClick={() => navigate('/quotations')}
+            className="text-xs font-bold"
+          >
+            All Proposals
+          </Button>
           <Button
             variant="outline"
             size="md"

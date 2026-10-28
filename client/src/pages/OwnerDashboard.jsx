@@ -34,10 +34,12 @@ import {
   UserPlus
 } from 'lucide-react';
 import Button from '../components/ui/Button';
+import { useToast } from '../context/ToastContext';
 
 const OwnerDashboard = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+  const { showToast } = useToast();
 
   const [loading, setLoading] = useState(true);
   const [quotations, setQuotations] = useState([]);
@@ -120,9 +122,10 @@ const OwnerDashboard = () => {
       link.click();
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
+      showToast({ type: 'success', message: '✓ Quotation PDF downloaded successfully!' });
     } catch (err) {
       console.error('Failed to download PDF:', err);
-      alert('Failed to generate PDF. Please try again.');
+      showToast({ type: 'error', message: 'Failed to generate PDF. Please try again.' });
     } finally {
       setDownloadingId(null);
     }
@@ -138,9 +141,10 @@ const OwnerDashboard = () => {
         if (selectedQuotation && selectedQuotation._id === id) {
           setSelectedQuotation((prev) => ({ ...prev, status: 'approved', approvedBy: user }));
         }
+        showToast({ type: 'success', message: '✓ Quotation approved successfully!' });
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to approve quotation');
+      showToast({ type: 'error', message: err.response?.data?.message || 'Failed to approve quotation' });
     }
   };
 
@@ -156,9 +160,10 @@ const OwnerDashboard = () => {
         if (selectedQuotation && selectedQuotation._id === id) {
           setSelectedQuotation((prev) => ({ ...prev, status: 'rejected' }));
         }
+        showToast({ type: 'warning', message: 'Quotation rejected and returned to rep.' });
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to reject quotation');
+      showToast({ type: 'error', message: err.response?.data?.message || 'Failed to reject quotation' });
     }
   };
 
@@ -291,9 +296,12 @@ const OwnerDashboard = () => {
       {/* 4 Friendly Pastel KPI Metric Cards matching Reference Image */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         {/* Card 1: Total Quotations (Green/Mint) */}
-        <div className="bg-[#ecfdf5] border border-[#a7f3d0] rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between shadow-xs min-h-[145px] hover:shadow-sm transition">
+        <div
+          onClick={() => navigate('/quotations')}
+          className="bg-[#ecfdf5] border border-[#a7f3d0] rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between shadow-xs min-h-[145px] hover:shadow-md hover:border-emerald-300 transition cursor-pointer group"
+        >
           <div className="flex items-center justify-between relative z-10">
-            <div className="w-12 h-12 rounded-xl bg-[#05603a] text-white flex items-center justify-center shadow-xs shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-[#05603a] text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
               <FileText className="w-6 h-6 text-white" />
             </div>
             <span className="inline-flex items-center gap-0.5 text-xs font-bold text-[#05603a]">
@@ -372,9 +380,12 @@ const OwnerDashboard = () => {
         </div>
 
         {/* Card 4: Pending Quotations (Coral/Rose) */}
-        <div className="bg-[#fef2f2] border border-[#fecaca] rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between shadow-xs min-h-[145px] hover:shadow-sm transition">
+        <div
+          onClick={() => navigate('/quotations')}
+          className="bg-[#fef2f2] border border-[#fecaca] rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between shadow-xs min-h-[145px] hover:shadow-md hover:border-rose-300 transition cursor-pointer group"
+        >
           <div className="flex items-center justify-between relative z-10">
-            <div className="w-12 h-12 rounded-xl bg-[#ef4444] text-white flex items-center justify-center shadow-xs shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-[#ef4444] text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
               <FileSpreadsheet className="w-6 h-6 text-white" />
             </div>
             <span className="inline-flex items-center gap-0.5 text-xs font-bold text-rose-600">

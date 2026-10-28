@@ -18,9 +18,11 @@ import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Modal from '../components/ui/Modal';
 import Alert from '../components/ui/Alert';
+import { useToast } from '../context/ToastContext';
 
 const Team = () => {
   const { user } = useSelector((state) => state.auth);
+  const { showToast } = useToast();
   const [members, setMembers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -97,11 +99,10 @@ const Team = () => {
         setMembers((prev) =>
           prev.map((m) => (m._id === memberId ? { ...m, status: newStatus } : m))
         );
-        setSuccessMsg(`Member status updated to ${newStatus}`);
-        setTimeout(() => setSuccessMsg(null), 3000);
+        showToast({ type: 'success', message: `✓ Member status updated to ${newStatus}` });
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to update member status');
+      showToast({ type: 'error', message: err.response?.data?.message || 'Failed to update member status' });
     }
   };
 

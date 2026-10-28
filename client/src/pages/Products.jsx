@@ -36,12 +36,14 @@ import Modal from '../components/ui/Modal';
 import Input from '../components/ui/Input';
 import { TableSkeleton } from '../components/ui/Skeleton';
 import Alert from '../components/ui/Alert';
+import { useToast } from '../context/ToastContext';
 
 const ITEMS_PER_PAGE = 50;
 
 const Products = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+  const { showToast } = useToast();
   const userRole = (user?.role || '').toLowerCase();
   const canManageProducts =
     userRole.includes('admin') ||
@@ -264,7 +266,7 @@ const Products = () => {
       }
     } catch (err) {
       console.error('Delete image error:', err);
-      alert(err.response?.data?.message || 'Failed to delete image from S3');
+      showToast({ type: 'error', message: err.response?.data?.message || 'Failed to delete image from S3' });
     } finally {
       setIsDeletingImage(false);
     }
@@ -279,12 +281,11 @@ const Products = () => {
       const res = await axios.delete(`/api/v1/products/${product._id}`);
       if (res.data.success) {
         setProducts(prev => prev.filter(p => p._id !== product._id));
-        setToastMessage(`✓ Product and S3 image deleted`);
-        setTimeout(() => setToastMessage(''), 3500);
+        showToast({ type: 'success', message: `✓ Product "${product.name}" and S3 image deleted` });
       }
     } catch (err) {
       console.error('Delete product error:', err);
-      alert(err.response?.data?.message || 'Failed to delete product');
+      showToast({ type: 'error', message: err.response?.data?.message || 'Failed to delete product' });
     }
   };
 

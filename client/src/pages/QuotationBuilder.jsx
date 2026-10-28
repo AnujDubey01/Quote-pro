@@ -29,10 +29,12 @@ import Input from '../components/ui/Input';
 import Badge from '../components/ui/Badge';
 import Alert from '../components/ui/Alert';
 import Modal from '../components/ui/Modal';
+import { useToast } from '../context/ToastContext';
 
 const QuotationBuilder = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+  const { showToast } = useToast();
   const userRole = (user?.role || '').toLowerCase();
   const isRestricted = userRole.includes('owner') || userRole.includes('manager') || Boolean(user?.isSuperAdmin);
   const userRoleName = userRole.includes('owner') ? 'Company Owners' : userRole.includes('manager') ? 'Catalog Managers' : 'Super Admins';
@@ -183,9 +185,10 @@ const QuotationBuilder = () => {
       link.click();
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
+      showToast({ type: 'success', message: `✓ Quotation #${quotationNumber || 'export'} PDF downloaded!` });
     } catch (err) {
       console.error('Failed to download PDF:', err);
-      alert('Failed to generate PDF. Please try again.');
+      showToast({ type: 'error', message: 'Failed to generate PDF. Please try again.' });
     } finally {
       setDownloadingPdf(false);
     }

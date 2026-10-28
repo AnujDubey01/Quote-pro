@@ -23,7 +23,10 @@ import {
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 
+import { useToast } from '../context/ToastContext';
+
 const PlatformAdmin = () => {
+  const { showToast } = useToast();
   const [stats, setStats] = useState(null);
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -83,9 +86,10 @@ const PlatformAdmin = () => {
       });
       if (res.data.success) {
         setCompanies(prev => prev.map(c => c._id === companyId ? { ...c, status: newStatus } : c));
+        showToast({ type: 'success', message: `✓ Company status updated to ${newStatus}` });
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to update company status');
+      showToast({ type: 'error', message: err.response?.data?.message || 'Failed to update company status' });
     }
   };
 
@@ -638,8 +642,8 @@ const PlatformAdmin = () => {
             <Button
               variant="outline"
               size="sm"
-              className="w-full text-xs font-semibold py-2"
-              onClick={() => alert('Opening Cluster Grafana Telemetry Metrics in secure tab...')}
+              className="w-full text-xs font-semibold py-2 cursor-pointer"
+              onClick={() => showToast({ type: 'info', message: 'Cluster Grafana Telemetry: ap-south-1 telemetry dashboard connected.' })}
             >
               📊 View Cluster Grafana Metrics
             </Button>

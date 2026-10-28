@@ -30,21 +30,30 @@ import {
   HelpCircle,
   ArrowRight,
   ChevronRight,
-  Lock
+  Lock,
+  ShieldCheck,
+  Mail,
+  Copy
 } from 'lucide-react';
 import { getRoleType, getDefaultRouteForRole } from '../utils/roleUtils';
 import Modal from '../components/ui/Modal';
+import { useToast } from '../context/ToastContext';
 
 const DashboardLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useSelector((state) => state.auth);
+  const { showToast } = useToast();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [cmdSearchQuery, setCmdSearchQuery] = useState('');
   const [companyBrand, setCompanyBrand] = useState(null);
+
+  // Modal dialog states for alerts replacement
+  const [roleLockModalOpen, setRoleLockModalOpen] = useState(false);
+  const [supportModalOpen, setSupportModalOpen] = useState(false);
 
   // Live dynamic notifications state
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -153,7 +162,7 @@ const DashboardLayout = () => {
               description: `Discount approval requested with manager. Total: ₹${Number(q.total || 0).toLocaleString('en-IN')}`,
               time: 'Pending Review',
               type: 'info',
-              link: '/sales'
+              link: '/quotations'
             })));
           }
         }
@@ -197,23 +206,16 @@ const DashboardLayout = () => {
       },
     ];
 
-    // Quotations / Proposals
+    // Quotations / Proposals (Dedicated full management page for all commercial roles)
     if (!isSuperAdmin) {
-      const isRestrictedFromCreation = isOwner || isManager;
       items.push({
         name: isSales ? 'My Proposals' : 'Quotations',
-        path: isOwner ? '/owner' : isSales ? '/sales' : '/manager',
+        path: '/quotations',
         icon: FileSpreadsheet,
-        isLocked: isRestrictedFromCreation,
-        lockTooltip: 'Review & Approval Console (Quotation Creation restricted to Sales)',
         badge: notificationCount > 0 
           ? String(notificationCount) 
-          : isRestrictedFromCreation 
-            ? 'Review Only' 
-            : undefined,
-        badgeColor: notificationCount > 0 
-          ? 'bg-rose-50 text-rose-700 font-bold border border-rose-200' 
-          : 'bg-zinc-100 text-zinc-600 font-medium border border-zinc-200 text-[10px]',
+          : undefined,
+        badgeColor: 'bg-rose-50 text-rose-700 font-bold border border-rose-200',
       });
     }
 
@@ -231,7 +233,7 @@ const DashboardLayout = () => {
         badgeColor: 'bg-amber-50 text-amber-800 font-semibold border border-amber-200 text-[10px]',
         onClick: isRestrictedFromCreation ? (e) => {
           e.preventDefault();
-          alert('🔒 Quotation Creation Locked:\n\nAs a Company Owner / Catalog Manager, quotation generation is restricted to Sales Representatives.\n\nYou have audit, review, and approval authority over all submitted quotations.');
+          setRoleLockModalOpen(true);
         } : undefined
       });
     }
@@ -297,6 +299,7 @@ const DashboardLayout = () => {
   const getCommandPaletteLinks = () => {
     const links = [];
     if (isOwner || isManager || isSales) {
+      links.push({ label: 'Proposals & Quotations Center', path: '/quotations', icon: FileSpreadsheet, category: 'Navigation' });
       links.push({ label: 'Create New Quotation', path: '/quotations/new', icon: Sliders, category: 'Actions' });
     }
     if (isOwner || isManager || isSales) {
@@ -338,19 +341,31 @@ const DashboardLayout = () => {
             </div>
           </div>
 
-          {/* Account Identity Badge with Coral Avatar and Role Badge matching Reference */}
+          {/* Account Identity Badge with Role-Aware Branding */}
           <div className="mt-4">
             <div className="w-full flex items-center justify-between p-2.5 rounded-2xl border border-zinc-200/90 bg-white shadow-2xs select-none">
               <div className="flex items-center gap-3 truncate">
-                <div className="w-9 h-9 rounded-full bg-[#f43f5e] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
-                  {companyBrand?.name ? companyBrand.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'AC'}
+                <div className={`w-9 h-9 rounded-full ${
+                  isSuperAdmin 
+                    ? 'bg-gradient-to-br from-[#05603a] to-[#044e30] text-emerald-100' 
+                    : 'bg-[#f43f5e] text-white'
+                } flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs`}>
+                  {isSuperAdmin 
+                    ? 'QP' 
+                    : (companyBrand?.name ? companyBrand.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'CO')}
                 </div>
                 <div className="flex flex-col text-left truncate">
                   <span className="font-bold text-sm text-zinc-950 truncate leading-tight">
-                    {companyBrand?.name || 'Acme Corp'}
+                    {isSuperAdmin 
+                      ? 'QuotePro Platform' 
+                      : (companyBrand?.name || 'My Organization')}
                   </span>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f3e8ff] text-[#7e22ce]">
+                    <span className={`inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      isSuperAdmin 
+                        ? 'bg-emerald-50 text-[#05603a] border border-emerald-200/80' 
+                        : 'bg-[#f3e8ff] text-[#7e22ce]'
+                    }`}>
                       {getRoleDisplayName()}
                     </span>
                   </div>
@@ -424,8 +439,8 @@ const DashboardLayout = () => {
             </button>
             <button
               type="button"
-              onClick={() => alert('Support team is available 24/7 at support@quotepro.com')}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition"
+              onClick={() => setSupportModalOpen(true)}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition cursor-pointer"
             >
               <HelpCircle className="w-4 h-4 text-zinc-400" />
               <span>Help & Support</span>
@@ -440,24 +455,39 @@ const DashboardLayout = () => {
             </button>
           </div>
 
-          {/* Upgrade to Pro Card matching Reference Image */}
-          <div className="bg-[#ebfaf2] border border-[#d1fae5] rounded-2xl p-4 space-y-2.5">
-            <div className="flex items-center gap-2">
-              <Crown className="w-4 h-4 text-amber-500 fill-amber-500" />
-              <span className="font-bold text-sm text-zinc-950">Upgrade to Pro</span>
+          {/* Upgrade to Pro Card for Tenant Subscribers, or Platform Status for Super Admin */}
+          {isSuperAdmin ? (
+            <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-3.5 space-y-1.5 select-none">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-[#05603a] uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Cluster Operational
+                </span>
+                <span className="text-[10px] font-mono text-emerald-800 font-bold bg-emerald-100/80 px-1.5 py-0.5 rounded">ap-south-1</span>
+              </div>
+              <p className="text-[11px] text-slate-500 leading-snug">
+                Multi-tenant isolation & data boundary policies active across all accounts.
+              </p>
             </div>
-            <p className="text-xs text-zinc-600 leading-relaxed font-medium">
-              Get advanced features and priority support.
-            </p>
-            <button
-              type="button"
-              onClick={() => navigate('/settings')}
-              className="w-full py-2 bg-[#05603a] hover:bg-[#044e30] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition shadow-xs cursor-pointer"
-            >
-              <span>Upgrade Now</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          ) : (
+            <div className="bg-[#ebfaf2] border border-[#d1fae5] rounded-2xl p-4 space-y-2.5">
+              <div className="flex items-center gap-2">
+                <Crown className="w-4 h-4 text-amber-500 fill-amber-500" />
+                <span className="font-bold text-sm text-zinc-950">Upgrade to Pro</span>
+              </div>
+              <p className="text-xs text-zinc-600 leading-relaxed font-medium">
+                Get advanced features and priority support.
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate('/settings')}
+                className="w-full py-2 bg-[#05603a] hover:bg-[#044e30] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition shadow-xs cursor-pointer"
+              >
+                <span>Upgrade Now</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
       </aside>
 
@@ -587,7 +617,7 @@ const DashboardLayout = () => {
             ) : (isOwner || isManager) ? (
               <button
                 type="button"
-                onClick={() => alert('🔒 Quotation Creation Locked:\n\nQuotation creation is designated for Sales Representatives.\n\nCompany Owners and Catalog Managers have audit and approval governance.')}
+                onClick={() => setRoleLockModalOpen(true)}
                 className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200/70 text-zinc-500 rounded-xl text-xs font-semibold transition cursor-pointer border border-zinc-200/80"
                 title="Quotation creation is restricted to Sales Representatives"
               >
@@ -763,6 +793,114 @@ const DashboardLayout = () => {
                 </button>
               );
             })}
+          </div>
+        </div>
+      </Modal>
+
+      {/* Role Restriction Notice Modal (replaces browser alert) */}
+      <Modal
+        isOpen={roleLockModalOpen}
+        onClose={() => setRoleLockModalOpen(false)}
+        title="Quotation Creation Role Restricted"
+        maxWidth="max-w-md"
+      >
+        <div className="space-y-4 text-xs">
+          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+              <Lock className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-amber-900 text-sm mb-1">
+                Designated for Sales Representatives
+              </h4>
+              <p className="text-amber-800 leading-relaxed font-medium">
+                As a <strong>Company Owner</strong> or <strong>Catalog Manager</strong>, quotation generation is restricted to sales representatives. You have audit, review, and approval authority over all submitted quotations.
+              </p>
+            </div>
+          </div>
+
+          <p className="text-slate-600 leading-relaxed">
+            You can review, approve, or reject existing proposals in the <strong>Proposals Console</strong>, or adjust catalog pricing rules in the Product Catalog.
+          </p>
+
+          <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+            <button
+              type="button"
+              onClick={() => setRoleLockModalOpen(false)}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+            >
+              Understood
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setRoleLockModalOpen(false);
+                navigate('/quotations');
+              }}
+              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#05603a] hover:bg-[#044e30] transition-colors shadow-2xs"
+            >
+              Go to Proposals Console
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* 24/7 Enterprise Support Modal (replaces browser alert) */}
+      <Modal
+        isOpen={supportModalOpen}
+        onClose={() => setSupportModalOpen(false)}
+        title="QuotePro Enterprise Support"
+        maxWidth="max-w-md"
+      >
+        <div className="space-y-4 text-xs">
+          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-100 text-[#05603a] flex items-center justify-center shrink-0">
+              <HelpCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-emerald-950 text-sm mb-0.5">
+                24/7 Enterprise SLA Support
+              </h4>
+              <p className="text-emerald-800 leading-relaxed font-medium">
+                Direct access to our dedicated solutions engineering team. Guaranteed &lt; 15-minute response time for enterprise accounts.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label className="font-bold text-slate-700 block mb-1">
+              Official Support Desk
+            </label>
+            <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50 font-mono text-xs">
+              <div className="flex items-center gap-2 text-slate-800 font-bold">
+                <Mail className="w-4 h-4 text-slate-400" />
+                <span>support@quotepro.com</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText('support@quotepro.com');
+                  showToast({ type: 'success', message: '✓ Support email copied to clipboard!' });
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:border-slate-300 text-slate-700 font-bold text-[11px] shadow-2xs transition-colors cursor-pointer"
+              >
+                <Copy className="w-3 h-3" />
+                <span>Copy</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="pt-2 flex items-center justify-between border-t border-slate-100 text-[11px] text-slate-500">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Platform Systems 99.99% Operational</span>
+            </div>
+            <a
+              href="mailto:support@quotepro.com"
+              className="font-bold text-[#05603a] hover:underline"
+            >
+              Open Email App &rarr;
+            </a>
           </div>
         </div>
       </Modal>

@@ -14,6 +14,7 @@ import {
   Package,
   Users,
   Building,
+  Building2,
   ArrowRight,
   TrendingUp,
   Sparkles,
@@ -23,10 +24,12 @@ import {
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Modal from '../components/ui/Modal';
+import { useToast } from '../context/ToastContext';
 
 const SalesDashboard = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+  const { showToast } = useToast();
 
   const [loading, setLoading] = useState(true);
   const [myQuotes, setMyQuotes] = useState([]);
@@ -83,8 +86,9 @@ const SalesDashboard = () => {
       link.click();
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
+      showToast({ type: 'success', message: `✓ Quotation #${quotationNumber || quotationId} PDF downloaded!` });
     } catch (err) {
-      alert('Failed to download PDF');
+      showToast({ type: 'error', message: 'Failed to download PDF. Please try again.' });
     } finally {
       setDownloadingId(null);
     }
@@ -105,13 +109,12 @@ const SalesDashboard = () => {
         recipientEmail: recipient.trim()
       });
       if (res.data.success) {
-        setEmailToast(`✓ Quotation #${quotation.quotationNumber} emailed to ${recipient.trim()}`);
-        setTimeout(() => setEmailToast(''), 4500);
+        showToast({ type: 'success', message: `✓ Quotation #${quotation.quotationNumber} emailed to ${recipient.trim()}` });
         fetchSalesData();
       }
     } catch (err) {
       console.error('Email error:', err);
-      alert(err.response?.data?.message || 'Failed to email quotation to client');
+      showToast({ type: 'error', message: err.response?.data?.message || 'Failed to email quotation to client' });
     } finally {
       setSendingEmailId(null);
     }
@@ -302,11 +305,11 @@ const SalesDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <Link
           to="/quotations/new"
-          className="bg-white p-5 rounded-2xl border border-zinc-200/80 hover:border-[#05603a] hover:shadow-md transition flex items-center justify-between group"
+          className="bg-white p-5 rounded-2xl border border-zinc-200/80 hover:border-[#05603a] hover:shadow-md transition flex items-center justify-between group cursor-pointer"
         >
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-emerald-50 text-[#05603a] flex items-center justify-center font-bold">
-              ⚡
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200/80 text-[#05603a] flex items-center justify-center shadow-2xs group-hover:scale-105 group-hover:bg-[#05603a] group-hover:text-white transition-all">
+              <FileSpreadsheet className="w-5 h-5 transition-colors" />
             </div>
             <div>
               <h3 className="font-bold text-zinc-950 text-sm group-hover:text-[#05603a] transition">
@@ -315,16 +318,16 @@ const SalesDashboard = () => {
               <p className="text-xs text-zinc-500">Instant SKU auto-fill & verified PDF</p>
             </div>
           </div>
-          <ArrowRight className="w-4 h-4 text-zinc-400 group-hover:text-[#05603a] transition" />
+          <ArrowRight className="w-4 h-4 text-zinc-400 group-hover:text-[#05603a] group-hover:translate-x-1 transition-all" />
         </Link>
 
         <Link
           to="/customers"
-          className="bg-white p-5 rounded-2xl border border-zinc-200/80 hover:border-[#05603a] hover:shadow-md transition flex items-center justify-between group"
+          className="bg-white p-5 rounded-2xl border border-zinc-200/80 hover:border-[#05603a] hover:shadow-md transition flex items-center justify-between group cursor-pointer"
         >
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-emerald-50 text-[#05603a] flex items-center justify-center font-bold">
-              🏢
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 text-blue-600 flex items-center justify-center shadow-2xs group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white transition-all">
+              <Building2 className="w-5 h-5 transition-colors" />
             </div>
             <div>
               <h3 className="font-bold text-zinc-950 text-sm group-hover:text-[#05603a] transition">
@@ -333,16 +336,16 @@ const SalesDashboard = () => {
               <p className="text-xs text-zinc-500">{totalCustomers} active enterprise accounts</p>
             </div>
           </div>
-          <ArrowRight className="w-4 h-4 text-zinc-400 group-hover:text-[#05603a] transition" />
+          <ArrowRight className="w-4 h-4 text-zinc-400 group-hover:text-[#05603a] group-hover:translate-x-1 transition-all" />
         </Link>
 
         <Link
           to="/products"
-          className="bg-white p-5 rounded-2xl border border-zinc-200/80 hover:border-[#05603a] hover:shadow-md transition flex items-center justify-between group"
+          className="bg-white p-5 rounded-2xl border border-zinc-200/80 hover:border-[#05603a] hover:shadow-md transition flex items-center justify-between group cursor-pointer"
         >
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-emerald-50 text-[#05603a] flex items-center justify-center font-bold">
-              📦
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/80 text-amber-600 flex items-center justify-center shadow-2xs group-hover:scale-105 group-hover:bg-amber-600 group-hover:text-white transition-all">
+              <Package className="w-5 h-5 transition-colors" />
             </div>
             <div>
               <h3 className="font-bold text-zinc-950 text-sm group-hover:text-[#05603a] transition">
@@ -351,7 +354,7 @@ const SalesDashboard = () => {
               <p className="text-xs text-zinc-500">{totalProducts} specifier items with photos</p>
             </div>
           </div>
-          <ArrowRight className="w-4 h-4 text-zinc-400 group-hover:text-[#05603a] transition" />
+          <ArrowRight className="w-4 h-4 text-zinc-400 group-hover:text-[#05603a] group-hover:translate-x-1 transition-all" />
         </Link>
       </div>
 
@@ -371,15 +374,24 @@ const SalesDashboard = () => {
               Live status of customer proposals created by your sales account
             </p>
           </div>
-          <Button
-            variant="forest"
-            size="sm"
-            icon={Plus}
-            onClick={() => navigate('/quotations/new')}
-            className="text-xs font-bold"
-          >
-            New Quote
-          </Button>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/quotations"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 text-xs font-semibold text-zinc-700 hover:text-[#05603a] hover:border-emerald-200 hover:bg-emerald-50/50 transition"
+            >
+              Proposals Center
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <Button
+              variant="forest"
+              size="sm"
+              icon={Plus}
+              onClick={() => navigate('/quotations/new')}
+              className="text-xs font-bold"
+            >
+              New Quote
+            </Button>
+          </div>
         </div>
 
         {loading ? (

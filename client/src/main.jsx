@@ -5,6 +5,7 @@ import { store } from './store'
 import axios from 'axios'
 import './index.css'
 import App from './App.jsx'
+import { ToastProvider } from './context/ToastContext'
 
 // Enable credentials for cross-origin / proxy cookie sharing
 axios.defaults.withCredentials = true;
@@ -77,7 +78,9 @@ axios.interceptors.response.use(
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
-      <App />
+      <ToastProvider>
+        <App />
+      </ToastProvider>
     </Provider>
   </StrictMode>,
 )

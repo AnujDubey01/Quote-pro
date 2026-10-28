@@ -8,6 +8,7 @@ import ManagerDashboard from './pages/ManagerDashboard';
 import SalesDashboard from './pages/SalesDashboard';
 import PlatformAdmin from './pages/PlatformAdmin';
 import QuotationBuilder from './pages/QuotationBuilder';
+import Quotations from './pages/Quotations';
 import Products from './pages/Products';
 import Customers from './pages/Customers';
 import Team from './pages/Team';
@@ -110,6 +111,15 @@ function App() {
             element={
               <RoleRoute allowedRoles={['owner', 'manager', 'sales']}>
                 <Customers />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="quotations"
+            element={
+              <RoleRoute allowedRoles={['owner', 'sales', 'manager']}>
+                <Quotations />
               </RoleRoute>
             }
           />

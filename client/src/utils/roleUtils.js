@@ -43,6 +43,7 @@ export const isRouteAuthorizedForRole = (roleType, path) => {
         '/owner',
         '/manager',
         '/sales',
+        '/quotations',
         '/products',
         '/customers',
         '/quotations/new',
@@ -52,6 +53,7 @@ export const isRouteAuthorizedForRole = (roleType, path) => {
     case 'manager':
       return [
         '/manager',
+        '/quotations',
         '/products',
         '/customers',
         '/quotations/new'
@@ -59,6 +61,7 @@ export const isRouteAuthorizedForRole = (roleType, path) => {
     case 'sales':
       return [
         '/sales',
+        '/quotations',
         '/products',
         '/customers',
         '/quotations/new'
